@@ -1,5 +1,7 @@
 <script>
+    import ky from "ky";
     import {browser} from "$app/environment";
+    import Status from "./Status.svelte";
 
     const baseAPIAddress = "http://localhost:8000/api";
     const cAPIHealthPoint = "/health"
@@ -7,6 +9,10 @@
     const cAPIResetPoint = "/reset";
 
     let userInput;
+
+    let serverHealth = false;
+    let lastResetTimeStamp;
+    let recentReset = false;
 
     let currentWord = "";
     let wordHistory = [];
@@ -37,18 +43,20 @@
     }
 
     async function resetServer() {
-        const response = await fetch(baseAPIAddress + cAPIResetPoint);
-        const data = await response.json();
-        if (data['status'] === 'ok') {
+        const data = await ky.get(baseAPIAddress + cAPIResetPoint).json();
+        serverHealth = data['status'] === 'ok'
+        if (serverHealth) {
             console.log("reset successful")
+            lastResetTimeStamp = Date.now()
+            recentReset = true
+            setTimeout(() => {recentReset = false}, 1000)
             return;
         }
         console.error("failed to reset")
     }
 
     async function checkAPIHealth() {
-        const response = await fetch(baseAPIAddress + cAPIHealthPoint);
-        const data = await response.json();
+        const data = await ky.get(baseAPIAddress + cAPIHealthPoint).json();
         if (data['status'] === 'ok') {
             console.log("API health ok")
             return;
@@ -73,14 +81,9 @@
 
         console.group("request trace")
 
-        const response = await fetch(baseAPIAddress + cAPISubmitPoint, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ word: value })
-        });
-        const data = await response.json();
+        const data = await ky.post(baseAPIAddress + cAPISubmitPoint, {
+            json: { word: value }
+        }).json();
         console.log(`status: ${data['status']}; newWord: ${data['newWord']}; gameOver: ${data['gameOver']}`);
         console.groupEnd();
         console.groupEnd();
@@ -104,8 +107,11 @@
 </script>
 
 <div class="p-3 w-screen h-screen grid grid-cols-1 grid-rows-8 gap-3 bg-slate-900 text-slate-50 ptd">
-    <div id='header' class="debug">
-        <span>stats etc. </span>
+    <div id='header' class="debug p-2 jbm text-sm">
+        <span class="{serverHealth ? 'bg-green-500' : 'bg-rose-500'} p-2">health {serverHealth ? 'ok' : 'bad'}</span>
+        <span class="{lastResetTimeStamp ? (recentReset ? 'bg-green-500' : 'bg-slate-500') : 'bg-rose-500'} p-2">{lastResetTimeStamp ? (recentReset ? 'now reset' : 'once reset') : 'never reset'}</span>
+        <span class="bg-amber-500 p-2">agent unknown</span>
+<!--        <Status color="red"/>-->
     </div>
     <div class="row-span-2"></div>
     <div id="content" class="row-span-1 flex flex-col debug text-6xl">
@@ -126,7 +132,8 @@
         >
     </div>
     <div id="footer" class="row-span-1">
-        version, copyright, etc.
+        <span>version 0.1</span>
+        <span>by ohdy518</span>
     </div>
 </div>
 
