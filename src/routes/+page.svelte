@@ -13,6 +13,7 @@
     let serverHealth = false;
     let lastResetTimeStamp;
     let recentReset = false;
+    let clientGameOver = false;
 
     let currentWord = "";
     let wordHistory = [];
@@ -94,40 +95,49 @@
             wordHistory.push(currentWord);
             currentWord = data['newWord'];
             if (data['gameOver'] === true) {
-                gameOver()
+                setGameOver()
             }
         }
         explicitHistory = wordHistory;
     }
 
-    function gameOver() {
-
+    function setGameOver() {
+        clientGameOver = true
     }
 
 </script>
 
 <div class="p-3 w-screen h-screen grid grid-cols-1 grid-rows-8 gap-3 bg-slate-900 text-slate-50 ptd">
-    <div id='header' class="debug p-2 jbm text-sm">
-        <span class="{serverHealth ? 'bg-green-500' : 'bg-rose-500'} p-2">health {serverHealth ? 'ok' : 'bad'}</span>
-        <span class="{lastResetTimeStamp ? (recentReset ? 'bg-green-500' : 'bg-slate-500') : 'bg-rose-500'} p-2">{lastResetTimeStamp ? (recentReset ? 'now reset' : 'once reset') : 'never reset'}</span>
-        <span class="bg-amber-500 p-2">agent unknown</span>
-<!--        <Status color="red"/>-->
+    <div id='header' class="flex flex-col gap-2 p-2 jbm text-sm">
+        <div class="flex flex-row gap-2">
+            <span class="ring-2 ring-inset ring-slate-500 p-2">technical status</span>
+            <span class="{serverHealth ? 'bg-green-500' : 'bg-rose-500'} p-2">health {serverHealth ? 'ok' : 'bad'}</span>
+            <span class="{lastResetTimeStamp ? (recentReset ? 'bg-green-500' : 'bg-slate-500') : 'bg-rose-500'} p-2">{lastResetTimeStamp ? (recentReset ? 'now reset' : 'once reset') : 'never reset'}</span>
+            <span class="bg-amber-500 p-2">agent unknown</span>
+        </div>
+        <div class="flex flex-row gap-2">
+            <span class="ring-2 ring-inset ring-slate-500 p-2">game status</span>
+            <span class="{wordHistoryLength === 0 ? 'bg-slate-500' : (!clientGameOver ? 'bg-green-500' : 'bg-rose-500')} p-2">game {wordHistoryLength === 0 ? 'not started' : (!clientGameOver ? 'underway' : 'over')}</span>
+            <span class="bg-slate-500 p-2">rally count {wordHistoryLength}</span>
+        </div>
+
+            <!--        <Status color="red"/>-->
     </div>
     <div class="row-span-2"></div>
-    <div id="content" class="row-span-1 flex flex-col debug text-6xl">
-        <div class="my-auto debug relative flex items-baseline">
-            <div id="container-left" class="debug font-regular text-slate-300 whitespace-nowrap absolute right-1/2 bottom-px pr-2">
+    <div id="content" class="row-span-1 flex flex-col  text-6xl">
+        <div class="my-auto  relative flex items-baseline">
+            <div id="container-left" class=" font-regular text-slate-300 whitespace-nowrap absolute right-1/2 bottom-px pr-2">
                 {wordHistoryConcat} ->
             </div>
-            <div id="container-right" class="debug font-semibold text-left text-8xl ml-[50%]">&nbsp;{currentWord}</div>
+            <div id="container-right" class=" font-semibold text-left text-8xl ml-[50%]">&nbsp;{currentWord}</div>
         </div>
     </div>
     <div id='definition' class="row-span-2">definition</div>
-    <div id="controls" class="row-span-1 grid grid-cols-6 debug">
-        <span id="status-message" class="debug col-span-3"></span>
+    <div id="controls" class="row-span-1 grid grid-cols-6 ">
+        <span id="status-message" class=" col-span-3"></span>
         <input
                 id="user-input"
-                class="debug border-slate-300 text-slate-300 outline-slate-300 border-2 col-span-2 outline-offset-4 outline-2 focus:outline-solid outline-none p-3 text-6xl"
+                class=" border-slate-300 text-slate-300 outline-slate-300 border-2 col-span-2 outline-offset-4 outline-2 focus:outline-solid outline-none p-3 text-6xl"
                 placeholder="{currentWord.slice(-1)}..."
         >
     </div>
