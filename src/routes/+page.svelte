@@ -88,11 +88,10 @@
         if (data['status'] === 'rejected') {
             currentWord = wordHistory.pop()
         } else { // accepted
+            wordHistory.push(currentWord);
+            currentWord = data['newWord'];
             if (data['gameOver'] === true) {
                 gameOver()
-            } else {
-                wordHistory.push(currentWord);
-                currentWord = data['newWord'];
             }
         }
         explicitHistory = wordHistory;
