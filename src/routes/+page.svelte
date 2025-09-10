@@ -7,13 +7,17 @@
     const cAPIHealthPoint = "/health"
     const cAPISubmitPoint = "/submit";
     const cAPIResetPoint = "/reset";
+    const cAPIDefinitionPoint = "/define";
 
     let userInput;
 
+    let submitting = false;
     let serverHealth = false;
     let lastResetTimeStamp;
     let recentReset = false;
     let clientGameOver = false;
+
+    let currentDefinition = "";
 
     let currentWord = "";
     let wordHistory = [];
@@ -39,7 +43,9 @@
         switch (event.key) {
             case "Enter":
                 console.log("enter key detection")
-                submit()
+                if (!submitting) {
+                    submit()
+                }
         }
     }
 
@@ -67,6 +73,7 @@
     }
 
     async function submit() {
+
         console.group("submit call trace");
         if (!userInput) { console.error("variable userInput is undefined"); return; }
         let value = userInput.value.trim();
@@ -77,10 +84,14 @@
             console.info("early return: minimum char");
         }
 
+        submitting = true
+
         wordHistory.push(currentWord);
         currentWord = value
 
         console.group("request trace")
+
+        await getDefinition(currentWord)
 
         const data = await ky.post(baseAPIAddress + cAPISubmitPoint, {
             json: { word: value }
@@ -99,10 +110,19 @@
             }
         }
         explicitHistory = wordHistory;
+        submitting = false
     }
 
     function setGameOver() {
         clientGameOver = true
+    }
+
+    async function getDefinition(value) {
+        const data = await ky.post(baseAPIAddress + cAPIDefinitionPoint, {
+            json: { word: value }
+        }).json()
+
+        currentDefinition = data['definition']
     }
 
 </script>
@@ -132,7 +152,7 @@
             <div id="container-right" class=" font-semibold text-left text-8xl ml-[50%]">&nbsp;{currentWord}</div>
         </div>
     </div>
-    <div id='definition' class="row-span-2">definition</div>
+    <div id='definition' class="row-span-2">{currentDefinition}</div>
     <div id="controls" class="row-span-1 grid grid-cols-6 ">
         <span id="status-message" class=" col-span-3"></span>
         <input
@@ -142,8 +162,8 @@
         >
     </div>
     <div id="footer" class="row-span-1">
-        <span>version 0.1</span>
-        <span>by ohdy518</span>
+        <span>agent: random</span>
+        <span>development</span>
     </div>
 </div>
 
