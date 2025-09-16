@@ -2,6 +2,21 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
 @import 'tailwindcss';
 
+@font-face {
+    font-family: 'KoPub Batang';
+    src: url('./lib/fonts/KoPub Batang Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'KoPub Batang';
+    src: url('./lib/fonts/KoPub Batang Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+
 
 .ptd {
     font-family: 'Pretendard Variable', sans-serif;
@@ -13,6 +28,10 @@
 
 .jbm {
     font-family: 'JetBrains Mono', sans-serif;
+}
+
+.kopub {
+    font-family: 'KoPub Batang', serif;
 }
 
 .debug {

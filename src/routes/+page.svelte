@@ -63,13 +63,13 @@
     }
 
     async function checkAPIHealth() {
+        console.log("pinging server...")
         const data = await ky.get(baseAPIAddress + cAPIHealthPoint).json();
         if (data['status'] === 'ok') {
             console.log("API health ok")
             return;
         }
         console.error("API health error")
-
     }
 
     async function submit() {
@@ -105,6 +105,7 @@
         } else { // accepted
             wordHistory.push(currentWord);
             currentWord = data['newWord'];
+            currentDefinition = data['definition'];
             if (data['gameOver'] === true) {
                 setGameOver()
             }
@@ -152,7 +153,12 @@
             <div id="container-right" class=" font-semibold text-left text-8xl ml-[50%]">&nbsp;{currentWord}</div>
         </div>
     </div>
-    <div id='definition' class="row-span-2">{currentDefinition}</div>
+    <div id='definition' class="row-span-2 relative flex flex-col">
+<!--        <div id="filler-container" class="right-1/2 absolute h-3 debug"></div>-->
+        <div class="kopub text-2xl leading-9 ml-[50%] pr-45">
+            <span class="font-bold text-3xl">{currentWord}</span><br/> {currentDefinition}
+        </div>
+    </div>
     <div id="controls" class="row-span-1 grid grid-cols-6 ">
         <span id="status-message" class=" col-span-3"></span>
         <input
