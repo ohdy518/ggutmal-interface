@@ -96,9 +96,26 @@
         const data = await ky.post(baseAPIAddress + cAPISubmitPoint, {
             json: { word: value }
         }).json();
-        console.log(`status: ${data['status']}; newWord: ${data['newWord']}; gameOver: ${data['gameOver']}`);
+        console.log(`status: ${data['status']}; newWord: ${data['newWord']}; gameOver: ${data['gameOver']}; userWins: ${data['userWins']}`);
         console.groupEnd();
         console.groupEnd();
+
+        userInput.value = "";
+
+        if (data["gameOver"]) {
+            userInput.disabled = true;
+            userInput.placeholder = "게임 끝!"
+        }
+
+        if ((data['status'] === "accepted") && data['gameOver'] && data['userWins']) {
+            console.log("accepted")
+            wordHistory.push(currentWord);
+            currentWord = '/'
+            currentDefinition = '게임 끝!'
+            explicitHistory = wordHistory;
+            submitting = false
+            return
+        }
 
         if (data['status'] === 'rejected') {
             currentWord = wordHistory.pop()
@@ -154,8 +171,7 @@
         </div>
     </div>
     <div id='definition' class="row-span-2 relative flex flex-col">
-<!--        <div id="filler-container" class="right-1/2 absolute h-3 debug"></div>-->
-        <div class="kopub text-2xl leading-9 ml-[50%] pr-45">
+        <div class="kopub text-2xl leading-9 ml-[50%] pr-45 text-wrap line-clamp-6">
             <span class="font-bold text-3xl">{currentWord}</span><br/> {currentDefinition}
         </div>
     </div>
